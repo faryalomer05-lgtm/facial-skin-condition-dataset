@@ -10,24 +10,13 @@ st.set_page_config(page_title="Cutilytics AI", page_icon="✦", layout="wide")
 st.markdown("""<style>
 .stApp{background:#fbfaff;color:#222046}.block-container{max-width:1460px;padding:1rem 2.5rem 2rem}.top{background:linear-gradient(100deg,#eadcff 0%,#fbf8ff 47%,#e3f1d8 100%);border:1px solid #d9d1e8;border-radius:0 0 24px 24px;padding:1.05rem 2.2rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}.brand{font-size:2.15rem;font-weight:800;letter-spacing:-.04em}.brand span{color:#74a163}.tag{font-size:1rem;color:#383052;margin-top:.1rem}.nav{font-size:.76rem;font-weight:700;border:1px solid #8aa381;border-radius:22px;padding:.6rem 1rem;background:#fffdfdcc}.leaf{color:#78a569;font-size:1.8rem}.panel{border:1px solid #ded9eb;border-radius:17px;background:rgba(255,255,255,.7);padding:1.25rem;margin:.4rem 0}.intro{padding:1.15rem 1.5rem}.intro h2{margin:0;color:#25214c}.muted{color:#625d79}.steps{display:flex;justify-content:space-evenly;align-items:center;padding-top:.8rem}.step{text-align:center;font-weight:700}.round{height:67px;width:67px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.75rem;margin:0 auto .45rem;background:#eee5ff}.round.green{background:#e7f4db}.arrow{color:#aa9cbf;font-size:1.8rem}.section-title{font-weight:800;font-size:1.16rem}.small{font-size:.87rem;color:#68627b}.profile{background:linear-gradient(105deg,#f1e7ff,#eff8e8);border-radius:12px;padding:1.25rem;min-height:142px}.hint{background:#f2edff;border-radius:12px;padding:1.25rem;min-height:142px}.status{margin-top:.7rem;background:#ede8f7;border-radius:20px;padding:.55rem .8rem;text-align:center;color:#8062a7;font-weight:700}.recommend{background:#f2f8f0;border-radius:11px;padding:.8rem 1rem;color:#526a54;font-size:.86rem}.disclaimer{border:1px solid #ded9eb;border-radius:12px;padding:.8rem 1rem;color:#645d78;font-size:.78rem}.blueprint{background:linear-gradient(100deg,#eee0ff,#eff6df);padding:1rem 1.3rem;border-radius:14px}.coming{display:inline-block;color:#4f8154;background:#e4f1df;border-radius:12px;padding:.25rem .6rem;font-size:.75rem;font-weight:700;margin-left:.6rem}div[data-testid='stFileUploader']{background:#faf8ff;border:2px dashed #d7cde5;border-radius:12px;padding:.9rem}.stButton>button{width:100%;border:0;border-radius:24px;background:linear-gradient(90deg,#ddc5fb,#d7ecd0);color:#493d67;font-weight:800;padding:.65rem}.indicator{padding:.65rem 0;border-bottom:1px solid #e9e5f0}.indlabel{font-weight:700;font-size:.9rem}</style>""",unsafe_allow_html=True)
 
-@st.cache_resource(show_spinner=False)
-def load_model():
-    model_path=Path('models/cutilitytics_efficientnetb0.keras');label_path=Path('models/class_names.json')
-    if not model_path.exists() or not label_path.exists(): return None,[]
-    import tensorflow as tf
-    return tf.keras.models.load_model(model_path),json.loads(label_path.read_text())
-
 def cues(image):
     px=np.asarray(image.convert('RGB').resize((224,224)),dtype=np.float32)
     bright,contrast=px.mean(),px.std();warm=(px[...,0].mean()-px[...,1].mean())/255
     return [min(100,round(abs(warm)*420)),min(100,round(max(0,65-contrast)*1.5)),min(100,round(max(0,50-contrast)*1.7))]
 
 def predict_pose(image):
-    model,labels=load_model()
-    if not model:return 'Capture model preparing',None
-    batch=np.expand_dims(np.asarray(image.convert('RGB').resize((224,224)),dtype=np.float32),0)
-    scores=model.predict(batch,verbose=0)[0];idx=int(np.argmax(scores))
-    return labels[idx].replace('_',' ').title(),float(scores[idx])
+    return 'Photo ready for analysis', None
 
 st.markdown("<div class='top'><div><span class='leaf'>❋</span> <span class='brand'>Cutilytics <span>AI</span></span><div class='tag'>Nurture your natural glow</div></div><div class='nav'>AI &nbsp;•&nbsp; PERSONALIZED SKINCARE &nbsp;•&nbsp; MVP</div><span class='leaf'>❧</span></div>",unsafe_allow_html=True)
 
