@@ -30,15 +30,17 @@ left,right=st.columns([.41,.59],gap='medium')
 with left:
     st.markdown("<div class='panel'><div class='section-title'>▣ &nbsp; Upload Your Skin Image</div><div class='small'>For the best preliminary analysis, use a clear, well-lit image with minimal makeup and no filters.</div></div>",unsafe_allow_html=True)
     upload=st.file_uploader('Drag & drop your image here',type=['jpg','jpeg','png'],label_visibility='collapsed')
+    camera=st.camera_input('Or take a live photo')
+    image_source=camera if camera is not None else upload
     st.markdown("<div class='recommend'><b>◉ &nbsp; Recommended</b><br>• Clear image &nbsp;&nbsp;&nbsp; • No beauty filters<br>• Face centered &nbsp;&nbsp;&nbsp; • Minimal makeup</div>",unsafe_allow_html=True)
-    if upload:
-        image=Image.open(upload).convert('RGB');st.image(image,caption='Your uploaded image',use_container_width=True)
-    if st.button('✧ &nbsp; Analyze My Skin',disabled=not bool(upload)):
+    if image_source is not None:
+        image=Image.open(image_source).convert('RGB');st.image(image,caption='Your camera photo' if camera is not None else 'Your uploaded image',use_container_width=True)
+    if st.button('✧ &nbsp; Analyze My Skin',disabled=image_source is None):
         st.session_state['analysed']=True
     st.markdown("<div class='small' style='margin-top:.75rem'><b>◎ &nbsp; Analysis Status</b><br>"+('Analysis complete.' if st.session_state.get('analysed') else 'Waiting for image…')+"</div>",unsafe_allow_html=True)
 with right:
     st.markdown("<div class='panel'><div class='section-title'>❧ &nbsp; Your Skin Profile</div><div class='small'>Your preliminary results will appear below.</div><hr style='border:.5px solid #ebe6f0'>",unsafe_allow_html=True)
-    if upload and st.session_state.get('analysed'):
+    if image_source is not None and st.session_state.get('analysed'):
         pose,confidence=predict_pose(image);values=cues(image)
         a,b,c=st.columns([1.15,.72,.95])
         with a: st.markdown(f"<div class='profile'><b>◌ &nbsp; Overall Skin Profile</b><div class='status'>{pose}"+(f" · {confidence:.0%}" if confidence is not None else '')+"</div><div class='small' style='margin-top:.55rem'>Preliminary capture guidance only.</div></div>",unsafe_allow_html=True)
